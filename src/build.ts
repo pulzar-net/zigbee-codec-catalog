@@ -10,11 +10,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { prelude, vendor } from './bundle.ts'
+import { cases } from './cases.ts'
 import { fieldsOf, settingsAndControls } from './exposes.ts'
 
 const require = createRequire(import.meta.url)
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const zhc = require('zigbee-herdsman-converters')
+const quiet = () => {}
+zhc.setLogger({ debug: quiet, info: quiet, warning: quiet, error: quiet })
 const { Zcl } = require('zigbee-herdsman')
 const zhcRoot = path.dirname(require.resolve('zigbee-herdsman-converters/package.json'))
 const VERSION: string = require('zigbee-herdsman-converters/package.json').version
@@ -92,8 +95,10 @@ for (const name of ['zigbee-herdsman-converters', 'zigbee-herdsman']) {
 }
 put('catalog.json', json(catalog))
 // herdsman reports a device's power source by these names; a fingerprint names one.
-const powerSources = Object.fromEntries(Object.entries(Zcl.PowerSource).filter(([k]) => !Number.isNaN(Number(k))))
+const powerSources = Object.fromEntries(Object.entries(Zcl.PowerSource)
+  .filter(([k]) => !Number.isNaN(Number(k)))) as Record<string, string>
 put('identify.json', json({ powerSources, models }))
+put('identify-cases.json', json(await cases(catalog, powerSources)))
 put('manifest.json', json({ format: 1, library: 'zigbee-herdsman-converters', version: VERSION,
   herdsman: HERDSMAN, builder: SELF, modules, definitions: catalog.length, previewErrors: failed }))
 writeFileSync(path.join(dir, 'SHA256SUMS'), Object.entries(written).sort().map(([f, h]) => `${h}  ${f}`).join('\n') + '\n')

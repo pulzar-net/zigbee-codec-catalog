@@ -28,6 +28,8 @@ that made them.
 | `SHA256SUMS` | the SHA-256 of every other file, `sha256sum` format |
 | `catalog.json` | every definition: `{module, model, vendor, description, zigbeeModel?, fingerprint?, whiteLabel?}` |
 | `identify.json` | `{powerSources, models}`: what identifying a device needs (below) |
+| `identify-cases.json` | `[{interview, expected}]`: for every model id and fingerprint of every definition, an interview made from it and the `{module, model}` the library's own lookup takes it for (`null`: none). A port of identify checks itself against these |
+| `licenses/<package>.txt` | the licences of zigbee-herdsman-converters and zigbee-herdsman, which every codec carries |
 | `previews/<module>.json` | per model in the module: `{fields, settings, controls, options, exposes, configure, version, ota}` |
 | `prelude.js` | the library's shared code, zigbee-herdsman, and the codec runtime (about 2 MB) |
 | `vendors/<module>.js` | one device module of the library (`devices/<module>.js`) |
@@ -65,8 +67,8 @@ expression the address (`0x` and 16 hex digits) must match; and with
 each endpoint every one of `deviceID`, `profileID`, `inputClusters`,
 `outputClusters` that the fingerprint gives is equal (cluster lists in order).
 A field that is empty (`""`, absent) is not compared, except numbers, which
-are compared whenever present. `src/identify.ts` is the reference, and the
-tests hold it to the library's own lookup for every definition.
+are compared whenever present. `src/identify.ts` is the reference; `identify-cases.json` holds it, and any
+port, to the library's own lookup for every definition.
 
 ## Assembling a codec
 
