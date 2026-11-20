@@ -1,10 +1,17 @@
 // identify-cases.json: for every model id and fingerprint of every
 // definition, an interview made from it and the definition the library's own
-// lookup takes that device for. A port of FORMAT.md's identify, in any
-// language, checks itself against these.
+// lookup takes that device for, in Node. identify.js, run anywhere else,
+// checks itself against these.
 
 import { createRequire } from 'node:module'
-import type { Interview } from './identify.ts'
+
+/** What a coordinator learns at join (FORMAT.md, "The interview"). */
+export type Interview = {
+  model_id?: string; manufacturer_name?: string; manufacturer_code?: number; type?: 'router' | 'end_device'
+  power_source?: number; app_version?: number; stack_version?: number; zcl_version?: number; hw_version?: number
+  date_code?: string; build_id?: string; ieee?: string
+  endpoints?: { id: number; profile?: number; device_id?: number; in?: number[]; out?: number[] }[]
+}
 
 const require = createRequire(import.meta.url)
 

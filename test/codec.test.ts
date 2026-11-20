@@ -5,7 +5,6 @@
 import assert from 'node:assert/strict'
 import { readdirSync, readFileSync } from 'node:fs'
 import { test } from 'node:test'
-import { identify } from '../src/identify.ts'
 import { type Attributes, converse } from './gateway.ts'
 import { release } from './release.ts'
 import { load } from './sandbox.ts'
@@ -21,7 +20,9 @@ const rows: string[] = []
 for (const f of fixtures) {
   test(`${f.file}`, { timeout: 180_000 }, async (t) => {
     const r = release()
-    const found = identify(f.interview, r.json('identify.json'))
+    const identifier = await load(r.identifier())
+    const found = identifier.call('decodeUplink', { zigbee: { interview: f.interview } }).data
+    identifier.dispose()
     await t.test(`identifies as ${f.definition.vendor} ${f.definition.model}`, () => {
       if (f.definition.generated) assert.equal(found, null)
       else assert.deepEqual(found, { module: f.definition.vendorModule, model: f.definition.model })

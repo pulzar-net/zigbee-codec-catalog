@@ -27,8 +27,8 @@ that made them.
 | `manifest.json` | `{format: 1, library, version, herdsman, builder, modules, definitions}` |
 | `SHA256SUMS` | the SHA-256 of every other file, `sha256sum` format |
 | `catalog.json` | every definition: `{module, model, vendor, description, zigbeeModel?, fingerprint?, whiteLabel?}` |
-| `identify.json` | `{powerSources, models}`: what identifying a device needs (below) |
-| `identify-cases.json` | `[{interview, expected}]`: for every model id and fingerprint of every definition, an interview made from it and the `{module, model}` the library's own lookup takes it for (`null`: none). A port of identify checks itself against these |
+| `identify.js` | every definition's identity (model ids, fingerprints), per device module in the library's order: with the prelude, the library's own lookup (below) |
+| `identify-cases.json` | `[{interview, expected}]`: for every model id and fingerprint of every definition, an interview made from it and the `{module, model}` the library's own lookup takes it for in Node (`null`: none). identify.js is held to these |
 | `licenses/<package>.txt` | the licences of zigbee-herdsman-converters and zigbee-herdsman, which every codec carries |
 | `previews/<module>.json` | per model in the module: `{fields, settings, controls, options, exposes, configure, version, ota}` |
 | `prelude.js` | the library's shared code, zigbee-herdsman, and the codec runtime (about 2 MB) |
@@ -46,29 +46,20 @@ Basic cluster's value), `app_version`, `stack_version`, `zcl_version`,
 `hw_version`, `date_code`, `build_id` and `endpoints[{id, profile,
 device_id, in, out}]` (cluster ids). Codecs take the same object.
 
-1. Look up `models[key]`, where `key` is the model id in lower case, or
-   `"null"` when the model id is missing or empty; if absent, look up the
-   same with everything from a NUL character on removed and spaces trimmed.
-   Nothing found: the library has no definition (use the generated codec).
-2. One candidate, and it has `zigbeeModel`: that is the definition.
-3. Otherwise the candidate with a matching `fingerprint` of the highest
-   `priority` (0 when absent; the first one found on a tie) is.
-4. Otherwise the candidate whose `zigbeeModel` holds the model id, compared
-   in lower case (or its NUL-trimmed form), is.
-5. Otherwise there is none.
+Which definition a device is, is the library's own lookup
+(`findDefinition`: its model index, then fingerprints by priority, then model
+ids), run on a zigbee-herdsman Device made from the interview. It is not
+reimplemented: one script runs it,
 
-A fingerprint matches when every field it has equals the device's:
-`applicationVersion`, `manufacturerID`, `type` (`Router`, `EndDevice`),
-`dateCode`, `hardwareVersion`, `manufacturerName`, `modelID`, `powerSource`
-(the name `powerSources` gives the interview's number, its low seven bits),
-`softwareBuildID`, `stackVersion`, `zclVersion`; `ieeeAddr` is a regular
-expression the address (`0x` and 16 hex digits) must match; and with
-`endpoints`, the device has exactly those endpoint ids, in that order, and for
-each endpoint every one of `deviceID`, `profileID`, `inputClusters`,
-`outputClusters` that the fingerprint gives is equal (cluster lists in order).
-A field that is empty (`""`, absent) is not compared, except numbers, which
-are compared whenever present. `src/identify.ts` is the reference; `identify-cases.json` holds it, and any
-port, to the library's own lookup for every definition.
+```
+prelude.js + "\n" + identify.js
+```
+
+and its `decodeUplink({zigbee: {interview}})` answers `{data: {module,
+model}}`, or `{data: null}` for a device the library has no definition for
+(use the generated codec). identify.js holds what the lookup reads of every
+definition, so the script needs no device module. About 2.5 MB, 10 MB of
+heap, under a millisecond a call.
 
 ## Assembling a codec
 

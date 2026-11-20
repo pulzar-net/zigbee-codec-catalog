@@ -16,8 +16,8 @@ day it comes out, with:
 
 - the codecs, as a shared prelude and one bundle per device module (a codec is
   the two plus one line);
-- a fingerprint index, to tell which definition a device is from what it said
-  at join;
+- the library's own lookup, to tell which definition a device is from what
+  it said at join, as one more script;
 - previews of every definition: its readings, and its settings and controls as
   JSON Schema;
 - checksums.
@@ -38,9 +38,12 @@ is. These codecs carry it there without rewriting a line of it.
 
 ```js
 const base = 'https://pulzar-net.github.io/zigbee-codec-catalog/v/26.135.0'
-const index = await (await fetch(`${base}/identify.json`)).json()
-// identify the device (FORMAT.md, "Identifying a device"; src/identify.ts)
-const codec = [await (await fetch(`${base}/prelude.js`)).text(),
+const prelude = await (await fetch(`${base}/prelude.js`)).text()
+// which definition the device is: the library's own lookup (FORMAT.md)
+// evaluate prelude + "\n" + identify.js, then
+await decodeUplink({ zigbee: { interview } })  // -> { data: { module: 'lumi', model: 'WSDCGQ11LM' } }
+// in a fresh engine, the codec:
+const codec = [prelude,
   await (await fetch(`${base}/vendors/lumi.js`)).text(),
   'globalThis.__zcc.use("lumi", "WSDCGQ11LM")'].join('\n')
 // evaluate `codec` in your engine, then:
@@ -56,8 +59,8 @@ On every release, before anything is published:
   its 0xFF01 heartbeat), an IKEA bulb, a Tuya presence sensor, a Philips Hue
   motion sensor and a device the library does not know, decoded, configured and
   commanded through codecs assembled from the release's own files, in QuickJS;
-- the fingerprint index against the library's own lookup, for every model id
-  and fingerprint of every definition.
+- the lookup, run in QuickJS from the release's files, against the same
+  lookup in Node, for every model id and fingerprint of every definition.
 
 The suite prints what each codec costs (size, load time, heap, time per call).
 

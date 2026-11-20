@@ -22,6 +22,8 @@ export function release() {
     codec: (module?: string, model?: string) => module && model
       ? `${read('prelude.js')}\n${read(`vendors/${module}.js`)}\nglobalThis.__zcc.use(${JSON.stringify(module)}, ${JSON.stringify(model)})\n`
       : `${read('prelude.js')}\nglobalThis.__zcc.useGenerated()\n`,
+    /** prelude + identify.js: the library's own lookup (FORMAT.md, "Identifying a device"). */
+    identifier: () => `${read('prelude.js')}\n${read('identify.js')}`,
   }
 }
 

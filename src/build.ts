@@ -2,7 +2,7 @@
 //
 // Builds the release of zigbee-herdsman-converters installed in
 // node_modules into <out>/v/<version>/ (FORMAT.md): the prelude, a bundle per
-// device module, the catalog, the fingerprint index, the previews, a
+// device module, the definitions' identities, the catalog, the previews, a
 // manifest and SHA256SUMS. A version once published is never written again.
 
 import { createHash } from 'node:crypto'
@@ -43,26 +43,26 @@ const definitionsOf = (m: string): Raw[] => require(`zigbee-herdsman-converters/
 
 // A fingerprint as data: its RegExp, the one field that is not, as source.
 const fingerprint = (f: Raw) => ({ ...f, ...(f.ieeeAddr instanceof RegExp ? { ieeeAddr: f.ieeeAddr.source } : {}) })
+// The same for identify.js, which makes the RegExp again.
+const identity = (f: Raw) => ({ ...f, ...(f.ieeeAddr instanceof RegExp
+  ? { ieeeAddr: { source: f.ieeeAddr.source, flags: f.ieeeAddr.flags } } : {}) })
 
 const started = Date.now()
 const p = await prelude(root)
 put('prelude.js', p.code)
 
 const catalog: Raw[] = []
-const models: Record<string, { module: string; model: string; zigbeeModel?: string[]; fingerprint?: Raw[]; priority?: number }[]> = {}
-for (const [key, entries] of Object.entries(index)) {
-  models[key] = entries.map(([m, i]) => {
-    const d = definitionsOf(m.replace(/\.js$/, ''))[i]
-    return { module: m.replace(/\.js$/, ''), model: d.model,
-      ...(d.zigbeeModel ? { zigbeeModel: d.zigbeeModel } : {}),
-      ...(d.fingerprint ? { fingerprint: d.fingerprint.map(fingerprint) } : {}) }
-  })
-}
+// Per device module, every definition in its order, with what the library's
+// lookup reads of it: identify.js.
+const identities: Record<string, Raw[]> = {}
 
 let failed = 0
 for (const m of modules) {
   put(`vendors/${m}.js`, await vendor(root, m, p.keys))
   const previews: Record<string, unknown> = {}
+  identities[m] = definitionsOf(m).map((d) => ({ model: d.model,
+    ...(d.zigbeeModel ? { zigbeeModel: d.zigbeeModel } : {}),
+    ...(d.fingerprint ? { fingerprint: d.fingerprint.map(identity) } : {}) }))
   for (const raw of definitionsOf(m)) {
     catalog.push({ module: m, model: raw.model, vendor: raw.vendor, description: raw.description,
       ...(raw.zigbeeModel ? { zigbeeModel: raw.zigbeeModel } : {}),
@@ -94,10 +94,10 @@ for (const name of ['zigbee-herdsman-converters', 'zigbee-herdsman']) {
   if (licence) put(`licenses/${name}.txt`, readFileSync(licence, 'utf8'))
 }
 put('catalog.json', json(catalog))
+put('identify.js', `globalThis.__zcc.identities(${JSON.stringify(identities)})\n`)
 // herdsman reports a device's power source by these names; a fingerprint names one.
 const powerSources = Object.fromEntries(Object.entries(Zcl.PowerSource)
   .filter(([k]) => !Number.isNaN(Number(k)))) as Record<string, string>
-put('identify.json', json({ powerSources, models }))
 put('identify-cases.json', json(await cases(catalog, powerSources)))
 put('manifest.json', json({ format: 1, library: 'zigbee-herdsman-converters', version: VERSION,
   herdsman: HERDSMAN, builder: SELF, modules, definitions: catalog.length, previewErrors: failed }))

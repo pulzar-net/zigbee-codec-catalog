@@ -21,7 +21,7 @@
 // Static imports throughout: the bundler follows them, and nothing here may
 // reach the filesystem or the network.
 
-import { generateExternalDefinition, postProcessConvertedFromZigbeeMessage, prepareDefinition } from 'zigbee-herdsman-converters'
+import { findDefinition, generateExternalDefinition, postProcessConvertedFromZigbeeMessage, prepareDefinition } from 'zigbee-herdsman-converters'
 import { Zcl, Zdo } from 'zigbee-herdsman'
 import { Device, Entity } from 'zigbee-herdsman/dist/controller/model/index.js'
 import { InterviewState } from 'zigbee-herdsman/dist/controller/model/device.js'
@@ -276,6 +276,25 @@ export function codec(raw: Any | undefined) {
   return { decode, encode, pending: () => waiting?.() }
 }
 
+/**
+ * Which definition a device is, by the library's own lookup (findDefinition)
+ * over a herdsman Device made from its interview, as a codec makes it. The
+ * lookup loads its candidates' device modules by name; here each module is
+ * its definitions' identities (identify.js): what the lookup reads of them.
+ */
+function identifier(modules: Record<string, Any[]>) {
+  for (const [module, definitions] of Object.entries(modules)) {
+    for (const d of definitions) {
+      Object.defineProperty(d, 'module', { value: module })
+      for (const f of d.fingerprint ?? []) if (f.ieeeAddr) f.ieeeAddr = new RegExp(f.ieeeAddr.source, f.ieeeAddr.flags)
+    }
+  }
+  return async (input: Any) => {
+    const found: Any = await findDefinition(build(input.zigbee.interview, undefined), false)
+    return { data: found ? { module: found.module, model: found.model } : null, warnings: [] }
+  }
+}
+
 // The prelude installs this; a vendor bundle adds its device module, and a
 // codec's last line picks a definition (FORMAT.md, "Assembling a codec").
 type Registry = Record<string, () => Any>
@@ -283,7 +302,11 @@ const installed = globalThis as Any
 
 export function install(modules: Registry) {
   const vendors: Record<string, Any> = {}
+  let identities: Record<string, Any[]> | undefined
   installed.require = (name: string) => {
+    // The library's lookup asks for a device module by a path of its own.
+    const asked = /^\.\/devices\/([\w-]+)$/.exec(name)
+    if (asked && identities) return { definitions: identities[asked[1]] ?? [] }
     const load = modules[name]
     if (!load) throw new Error(`${name} is not in this release's prelude`)
     return load()
@@ -301,5 +324,9 @@ export function install(modules: Registry) {
       expose(codec(raw))
     },
     useGenerated() { expose(codec(undefined)) },
+    identities(modules: Record<string, Any[]>) {
+      identities = modules
+      installed.decodeUplink = identifier(modules)
+    },
   }
 }
