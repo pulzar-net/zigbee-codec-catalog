@@ -1,0 +1,25 @@
+{
+  "name": "zigbee-codec-catalog",
+  "version": "0.1.0",
+  "description": "zigbee-herdsman-converters' definitions as self-contained codecs for a plain JavaScript engine, published per release",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build": "node src/build.ts site",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "buffer": "6.0.3",
+    "esbuild": "0.28.2",
+    "events": "3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "quickjs-emscripten": "0.31.0",
+    "typescript": "7.0.2",
+    "zigbee-herdsman-converters": "26.135.0"
+  }
+}

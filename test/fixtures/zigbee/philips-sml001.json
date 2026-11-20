@@ -1,0 +1,21 @@
+{
+  "name": "Philips Hue motion sensor SML001",
+  "interview": { "ieee": "0017880102a3b4c5", "nwk": "9f01", "type": "end_device", "manufacturer_code": 4107,
+    "manufacturer_name": "Signify Netherlands B.V.", "model_id": "SML001", "power_source": 3, "build_id": "6.1.1.27575",
+    "endpoints": [{ "id": 1, "profile": 49246, "device_id": 2128, "in": [0], "out": [0, 3, 4, 6, 8, 768, 5] },
+                  { "id": 2, "profile": 260, "device_id": 263, "in": [0, 1, 3, 1030, 1024, 1026], "out": [25] }] },
+  "attributes": { "2": { "1": { "33": { "type": 32, "value": 174 } }, "1030": { "16": { "type": 33, "value": 30 }, "48": { "type": 32, "value": 1 } } } },
+  "definition": { "vendorModule": "philips", "model": "9290012607", "vendor": "Philips", "generated": false },
+  "fields": ["occupancy", "temperature", "illuminance", "battery", "motion_sensitivity", "occupancy_timeout"],
+  "messages": [
+    { "what": "occupancy report", "endpoint": 2, "cluster": 1030, "frame": "182a0a00001801", "values": { "occupancy": true } },
+    { "what": "temperature report", "endpoint": 2, "cluster": 1026, "frame": "182a0a0000296608", "values": { "temperature": 21.5 } },
+    { "what": "illuminance report", "endpoint": 2, "cluster": 1024, "frame": "182a0a000021214e", "values": { "illuminance": 100 } },
+    { "what": "battery report", "endpoint": 2, "cluster": 1, "frame": "182a0a210020ae", "values": { "battery": 87 } }
+  ],
+  "configure": { "binds": 4, "includes": ["genPowerCfg.configReport", "msIlluminanceMeasurement.configReport", "msOccupancySensing.configReport", "msTemperatureMeasurement.configReport"] },
+  "commands": [
+    { "set": { "motion_sensitivity": "high" }, "state": { "motion_sensitivity": "high" },
+      "intents": [{ "label": "msOccupancySensing.write", "endpoint": 2, "cluster": 1030, "frame": "140b10000230002002" }] }
+  ]
+}

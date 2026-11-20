@@ -1,0 +1,104 @@
+# Each new release of zigbee-herdsman-converters, built, tested and published
+# the day it comes out: a GitHub release `zhc-<version>` with the tarball and
+# SHA256SUMS (permanent), and the newest ten unpacked on GitHub Pages.
+# A version is built once; a red build publishes nothing.
+name: release
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'A zigbee-herdsman-converters version (default: the latest)'
+        required: false
+        type: string
+concurrency:
+  group: release
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      built: ${{ steps.version.outputs.built }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Which version
+        id: version
+        env:
+          WANTED: ${{ inputs.version }}
+        run: |
+          version="${WANTED:-$(npm view zigbee-herdsman-converters version)}"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "not a version: $version"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if gh release view "zhc-$version" >/dev/null 2>&1; then
+            echo "zhc-$version is already published"
+            echo "built=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "built=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.version.outputs.built == 'true'
+        run: npm ci
+      - if: steps.version.outputs.built == 'true'
+        name: That release of the library
+        run: npm install --no-save --ignore-scripts "zigbee-herdsman-converters@${{ steps.version.outputs.version }}"
+      - if: steps.version.outputs.built == 'true'
+        run: npm run typecheck
+      - if: steps.version.outputs.built == 'true'
+        run: npm test
+      - if: steps.version.outputs.built == 'true'
+        name: Build and publish
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          npm run build
+          tarball="zigbee-codec-catalog-$version.tar.gz"
+          tar -C site/v -czf "$tarball" "$version"
+          sha256sum "$tarball" > SHA256SUMS
+          gh release create "zhc-$version" "$tarball" SHA256SUMS \
+            --title "zigbee-herdsman-converters $version" \
+            --notes "Codecs, fingerprint index and previews for zigbee-herdsman-converters $version ($(jq -r .definitions "site/v/$version/manifest.json") definitions). See FORMAT.md."
+
+  pages:
+    needs: build
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: The newest ten releases, unpacked
+        run: |
+          mkdir -p site/v
+          gh release list --limit 100 --json tagName,createdAt --jq '[.[] | select(.tagName | startswith("zhc-"))] | sort_by(.createdAt) | reverse | .[:10] | .[].tagName' > tags
+          for tag in $(cat tags); do
+            version="${tag#zhc-}"
+            gh release download "$tag" --dir "dl/$version"
+            (cd "dl/$version" && sha256sum -c SHA256SUMS)
+            tar -C site/v -xzf "dl/$version/zigbee-codec-catalog-$version.tar.gz"
+          done
+          jq -n --rawfile tags tags '($tags | split("\n") | map(select(length > 0) | ltrimstr("zhc-"))) as $v | {latest: $v[0], versions: $v}' > site/versions.json
+          cp FORMAT.md README.md site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,18 @@
+{
+  "name": "Tuya TS0601 4-in-1 mmWave presence sensor (_TZE284_gnpflcoq), datapoints on cluster 0xEF00",
+  "interview": { "ieee": "a4c138d1e2f3a4b5", "nwk": "7e22", "type": "end_device", "manufacturer_code": 4417,
+    "manufacturer_name": "_TZE284_gnpflcoq", "model_id": "TS0601", "power_source": 3, "app_version": 74,
+    "endpoints": [{ "id": 1, "profile": 260, "device_id": 81, "in": [4, 5, 61184, 0, 60672], "out": [25, 10] }] },
+  "definition": { "vendorModule": "tuya", "model": "TS0601_TZE284_gnpflcoq", "vendor": "Tuya", "generated": false },
+  "fields": ["presence", "temperature", "humidity", "illuminance", "battery", "sensitivity"],
+  "messages": [
+    { "what": "dataReport: presence, temperature, humidity, battery datapoints", "endpoint": 1, "cluster": 61184,
+      "frame": "192a020201010400010007020004000000d70802000400000037040200040000005a",
+      "values": { "presence": true, "temperature": 21.5, "humidity": 55, "battery": 90 } }
+  ],
+  "configure": { "includes": ["manuSpecificTuya.mcuVersionRequest"] },
+  "commands": [
+    { "set": { "sensitivity": 7 }, "state": { "sensitivity": 7 },
+      "intents": [{ "label": "manuSpecificTuya.dataRequest", "endpoint": 1, "cluster": 61184, "frame": "11000001000202000400000007" }] }
+  ]
+}

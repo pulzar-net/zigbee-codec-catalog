@@ -1,0 +1,19 @@
+{
+  "name": "Aqara WSDCGQ11LM temperature, humidity and pressure sensor",
+  "interview": { "ieee": "00158d0001a2b3c4", "nwk": "1a2b", "type": "end_device", "manufacturer_code": 4151,
+    "manufacturer_name": "LUMI", "model_id": "lumi.weather", "power_source": 3,
+    "endpoints": [{ "id": 1, "profile": 260, "device_id": 24321, "in": [0, 3, 65535, 1026, 1029, 1027], "out": [0, 4, 65535] }] },
+  "definition": { "vendorModule": "lumi", "model": "WSDCGQ11LM", "vendor": "Aqara", "generated": false },
+  "fields": ["temperature", "humidity", "pressure", "battery", "voltage"],
+  "messages": [
+    { "what": "temperature report", "endpoint": 1, "cluster": 1026, "frame": "182a0a0000296608", "values": { "temperature": 21.5 } },
+    { "what": "humidity report", "endpoint": 1, "cluster": 1029, "frame": "182a0a0000219a15", "values": { "humidity": 55.3 } },
+    { "what": "pressure report with its scaled value", "endpoint": 1, "cluster": 1027,
+      "frame": "182a0a000029f5031000299427140028ff", "values": { "pressure": 1013.2 } },
+    { "what": "Aqara's 0xFF01 heartbeat in genBasic, manufacturer-specific", "endpoint": 1, "cluster": 0,
+      "frame": "1c5f112a0a01ff42280121d10b03281c0421a81305210d00062401000000006429660865219a15662b8c8a01000a210000",
+      "values": { "voltage": 3025, "battery": 100, "device_temperature": 28, "temperature": 21.5, "humidity": 55.3, "pressure": 1010 } }
+  ],
+  "configure": { "includes": [] },
+  "commands": []
+}

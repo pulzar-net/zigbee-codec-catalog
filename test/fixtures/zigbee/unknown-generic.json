@@ -1,0 +1,13 @@
+{
+  "name": "A device the library has no definition for: it generates one from the clusters",
+  "interview": { "ieee": "70b3d5fffe000001", "nwk": "0b0b", "type": "router", "manufacturer_name": "Acme Sensors",
+    "model_id": "ACME-T100", "power_source": 1,
+    "endpoints": [{ "id": 1, "profile": 260, "device_id": 770, "in": [0, 3, 1026], "out": [] }] },
+  "definition": { "model": "ACME-T100", "vendor": "Acme Sensors", "generated": true },
+  "fields": ["temperature"],
+  "messages": [
+    { "what": "temperature report", "endpoint": 1, "cluster": 1026, "frame": "182a0a0000296608", "values": { "temperature": 21.5 } }
+  ],
+  "configure": { "includes": [] },
+  "commands": []
+}

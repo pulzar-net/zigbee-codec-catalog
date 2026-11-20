@@ -1,0 +1,24 @@
+{
+  "name": "IKEA TRADFRI LED1732G11 white spectrum bulb",
+  "interview": { "ieee": "000d6ffffe123456", "nwk": "4c1d", "type": "router", "manufacturer_code": 4476,
+    "manufacturer_name": "IKEA of Sweden", "model_id": "TRADFRI bulb E27 WS opal 1000lm", "power_source": 1, "build_id": "2.3.093",
+    "endpoints": [{ "id": 1, "profile": 260, "device_id": 268, "in": [0, 3, 4, 5, 6, 8, 768, 2821, 4096, 64636], "out": [5, 25, 32, 4096] }] },
+  "attributes": { "1": { "768": { "16394": { "type": 25, "value": 16 }, "16395": { "type": 33, "value": 250 }, "16396": { "type": 33, "value": 454 } } } },
+  "definition": { "vendorModule": "ikea", "model": "LED1732G11", "vendor": "IKEA", "generated": false },
+  "fields": ["state", "brightness", "color_temp"],
+  "messages": [
+    { "what": "on/off report", "endpoint": 1, "cluster": 6, "frame": "182a0a00001001", "values": { "state": "ON" } },
+    { "what": "level report", "endpoint": 1, "cluster": 8, "frame": "182a0a00002080", "values": { "brightness": 128 } },
+    { "what": "colour temperature report", "endpoint": 1, "cluster": 768, "frame": "182a0a070021720108003002",
+      "values": { "color_temp": 370, "color_mode": "color_temp" } }
+  ],
+  "configure": { "includes": ["lightingColorCtrl.read"] },
+  "commands": [
+    { "set": { "state": "ON", "brightness": 128 }, "state": { "state": "ON", "brightness": 128 },
+      "intents": [{ "label": "genLevelCtrl.moveToLevelWithOnOff", "endpoint": 1, "cluster": 8, "frame": "0100048000000000" }] },
+    { "set": { "color_temp": 370 }, "state": { "color_temp": 370, "color_mode": "color_temp" },
+      "intents": [{ "label": "lightingColorCtrl.moveToColorTemp", "endpoint": 1, "cluster": 768, "frame": "01000a720100000000" }] },
+    { "set": { "state": "OFF" }, "state": { "state": "OFF" },
+      "intents": [{ "label": "genOnOff.off", "endpoint": 1, "cluster": 6, "frame": "010000" }] }
+  ]
+}
