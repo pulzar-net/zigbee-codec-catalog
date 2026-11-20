@@ -67,7 +67,7 @@ jobs:
           sha256sum "$tarball" > SHA256SUMS
           gh release create "zhc-$version" "$tarball" SHA256SUMS \
             --title "zigbee-herdsman-converters $version" \
-            --notes "Codecs, fingerprint index and previews for zigbee-herdsman-converters $version ($(jq -r .definitions "site/v/$version/manifest.json") definitions). See FORMAT.md."
+            --notes "Codecs, the library's lookup and previews for zigbee-herdsman-converters $version ($(jq -r .definitions "site/v/$version/manifest.json") definitions). See FORMAT.md."
 
   pages:
     needs: build
