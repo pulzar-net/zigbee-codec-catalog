@@ -1,0 +1,35 @@
+# The docs site: docs/, Starlight with the Pulzar theme. This builds it on
+# every push and pull request; the build fails on a broken internal link.
+# release.yml publishes it to GitHub Pages, together with the served
+# releases (v/, versions.json), whose paths do not change.
+
+name: docs
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+      - run: npm ci
+        working-directory: docs
+      - name: Build the site (fails on a broken internal link)
+        run: npm run build
+        working-directory: docs
