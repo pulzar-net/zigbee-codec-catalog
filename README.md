@@ -23,7 +23,7 @@ day it comes out, with:
 - checksums.
 
 **[The format](FORMAT.md)** | **[Releases](https://github.com/pulzar-net/zigbee-codec-catalog/releases)** |
-**[Served files](https://pulzar-net.github.io/zigbee-codec-catalog/versions.json)**
+**[Served files](https://oss.pulzr.net/zigbee-codec-catalog/versions.json)**
 
 ## Why
 
@@ -37,7 +37,7 @@ is. These codecs carry it there without rewriting a line of it.
 ## Use
 
 ```js
-const base = 'https://pulzar-net.github.io/zigbee-codec-catalog/v/26.135.0'
+const base = 'https://oss.pulzr.net/zigbee-codec-catalog/v/26.135.0'
 const prelude = await (await fetch(`${base}/prelude.js`)).text()
 // which definition the device is: the library's own lookup (FORMAT.md)
 // evaluate prelude + "\n" + identify.js, then

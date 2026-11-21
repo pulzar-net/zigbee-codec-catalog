@@ -13,8 +13,8 @@ A release is built from one release of
 
 | | |
 |---|---|
-| `https://pulzar-net.github.io/zigbee-codec-catalog/versions.json` | `{latest, versions}`: the releases served below, newest first |
-| `https://pulzar-net.github.io/zigbee-codec-catalog/v/<version>/<file>` | a release's files, for the newest ten |
+| `https://oss.pulzr.net/zigbee-codec-catalog/versions.json` | `{latest, versions}`: the releases served below, newest first |
+| `https://oss.pulzr.net/zigbee-codec-catalog/v/<version>/<file>` | a release's files, for the newest ten |
 | GitHub release `zhc-<version>` | every release, permanently: `zigbee-codec-catalog-<version>.tar.gz` (the files below) and `SHA256SUMS` |
 
 Files are never changed once published. `manifest.json` names the builder

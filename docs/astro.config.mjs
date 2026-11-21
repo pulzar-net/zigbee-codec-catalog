@@ -8,7 +8,7 @@ import starlight from '@astrojs/starlight';
 import { pulzarPlugins } from '@pulzr/docs-theme';
 
 export default defineConfig({
-	site: 'https://pulzar-net.github.io',
+	site: 'https://oss.pulzr.net',
 	base: '/zigbee-codec-catalog',
 	// Pages are page.html, as GitHub Pages serves them.
 	build: { format: 'file' },
@@ -26,7 +26,7 @@ export default defineConfig({
 			sidebar: [
 				{ label: 'Guide', items: ['overview', 'format'] },
 				{ label: 'Releases', items: [
-					{ label: 'Served releases (versions.json)', link: 'https://pulzar-net.github.io/zigbee-codec-catalog/versions.json' },
+					{ label: 'Served releases (versions.json)', link: 'https://oss.pulzr.net/zigbee-codec-catalog/versions.json' },
 					{ label: 'Every release', link: 'https://github.com/pulzar-net/zigbee-codec-catalog/releases' },
 				] },
 			],
