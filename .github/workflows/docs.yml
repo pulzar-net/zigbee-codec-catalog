@@ -1,4 +1,4 @@
-# The docs site: docs/, Starlight with the Pulzar theme. This builds it on
+# The docs site: docs/, Starlight with the Pulzr theme. This builds it on
 # every push and pull request; the build fails on a broken internal link.
 # release.yml publishes it to GitHub Pages, together with the served
 # releases (v/, versions.json), whose paths do not change.

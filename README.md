@@ -80,4 +80,4 @@ release workflow installs each new upstream release in its place.
 MIT, as zigbee-herdsman-converters is. The published codecs contain
 zigbee-herdsman-converters and zigbee-herdsman (both MIT, by Koen Kanters and
 contributors); their licences are in each release's tarball. Maintained by
-[Pulzar](https://github.com/pulzar-net).
+[Pulzr](https://github.com/pulzar-net).

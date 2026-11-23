@@ -1,4 +1,4 @@
-// The zigbee-codec-catalog docs: Starlight with the shared Pulzar theme
+// The zigbee-codec-catalog docs: Starlight with the shared Pulzr theme
 // (github.com/pulzar-net/docs-theme). Pages are in src/content/docs; the
 // sidebar below orders them. CI builds it on every push (.github/workflows/docs.yml);
 // the release workflow publishes it to Pages around the served releases (v/,

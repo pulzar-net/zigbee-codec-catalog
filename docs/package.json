@@ -2,7 +2,7 @@
   "name": "zigbee-codec-catalog-docs",
   "private": true,
   "type": "module",
-  "description": "The zigbee-codec-catalog documentation site: Starlight with the Pulzar docs theme.",
+  "description": "The zigbee-codec-catalog documentation site: Starlight with the Pulzr docs theme.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build"
